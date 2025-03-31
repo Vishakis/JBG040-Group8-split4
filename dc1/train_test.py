@@ -9,10 +9,11 @@ def train_model(
         model: models.resnet50(pretrained=True),
         train_sampler: BatchSampler,
         optimizer: torch.optim.Optimizer,
+        scheduler: torch.optim.lr_scheduler.StepLR,     # Added scheduler here
         loss_function: Callable[..., torch.Tensor],
         device: str,
 ) -> List[torch.Tensor]:
-    # Lets keep track of all the losses:
+    # Let's keep track of all the losses:
     losses = []
     # Put the model in train mode:
     model.train()
@@ -34,6 +35,9 @@ def train_model(
         loss.backward()
         # We then make the optimizer take a step in the right direction.
         optimizer.step()
+
+    # Update learning rate after all batches are processed (at the end of each epoch) - currently step is 10
+    scheduler.step()
     return losses
 
 

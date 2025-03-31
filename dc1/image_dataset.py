@@ -25,8 +25,8 @@ class ImageDataset:
             self.transform = T.Compose([
                 T.ToPILImage(),
                 T.Resize((224, 224)),
-                T.RandomHorizontalFlip(p=0.5),
-                T.RandomRotation(degrees=20),
+                T.RandomHorizontalFlip(p=0.3),          #Adjust data augmentation flipping here
+                T.RandomRotation(degrees=10),           #Adjust data augmentation rotation here
                 T.ToTensor(),
             ])
         else:

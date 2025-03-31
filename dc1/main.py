@@ -36,7 +36,7 @@ def main(args: argparse.Namespace, activeloop: bool = True) -> None:
         Path("data/X_train.npy"),
         Path("data/Y_train.npy"),
         preprocess=args.preprocess,
-        augment=True       #TRUE/FALSE for data augmentation - 50% to flip and rotate with -+20 degrees
+        augment=True        #TRUE/FALSE for data augmentation - adjusted in the image_dataset.py file
     )
     test_dataset = ImageDataset(
         Path("data/X_test.npy"),
@@ -50,14 +50,19 @@ def main(args: argparse.Namespace, activeloop: bool = True) -> None:
     # ----------------------------------------------------------------
     model = models.resnet50(pretrained=True)
     num_ftrs = model.fc.in_features  # typically 2048 for ResNet-50
-    model.fc = nn.Linear(num_ftrs, 6)
+    model.fc = nn.Sequential(
+        nn.Dropout(p=0.2),  # Dropout layer (20% probability)
+        nn.Linear(num_ftrs, out_features=6)  # Fully connected layer
+    )
 
-    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.1)
+
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.1, weight_decay=2e-4)  #Optimizing function
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=6, gamma=0.15) #Scheduler for learning rate
     loss_function = nn.CrossEntropyLoss()
     print("Using loss function:", loss_function.__class__.__name__)
 
-    n_epochs = args.nb_epochs  # default 10 epochs
-    batch_size = args.batch_size
+    n_epochs = args.nb_epochs  # default 10 epochs - adjust below in args
+    batch_size = args.batch_size #default 25 size - adjust below in args
 
     # Device setup
     if torch.cuda.is_available():
@@ -87,8 +92,8 @@ def main(args: argparse.Namespace, activeloop: bool = True) -> None:
 
     if not args.evaluate_only:
         for epoch in range(n_epochs):
-            # Train one epoch
-            train_losses = train_model(model, train_sampler, optimizer, loss_function, device)
+            # Train one epoch                                          #ADDED SCHEDULER HERE
+            train_losses = train_model(model, train_sampler, optimizer, scheduler, loss_function, device)
             avg_train_loss = sum(train_losses) / len(train_losses)
             avg_train_loss = float(avg_train_loss.cpu())  # Convert to CPU and float
             mean_losses_train.append(avg_train_loss)
@@ -246,7 +251,7 @@ def main(args: argparse.Namespace, activeloop: bool = True) -> None:
         cm, class_names = generate_confusion_matrix(model, test_dataset, device)
 
         # Specify save path
-        output_dir = "output"
+        output_dir = "output_confusion_matrix"
         os.makedirs(output_dir, exist_ok=True)
         cm_path = os.path.join(output_dir, "confusion_matrix.png")
 
@@ -261,8 +266,8 @@ def main(args: argparse.Namespace, activeloop: bool = True) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--nb_epochs", help="number of training iterations", default=30, type=int)
-    parser.add_argument("--batch_size", help="batch size", default=25, type=int)
+    parser.add_argument("--nb_epochs", help="number of training iterations", default=12, type=int)
+    parser.add_argument("--batch_size", help="batch size", default=15, type=int)
     parser.add_argument("--balanced_batches", help="balance batches for class labels", default=True, type=bool)
     parser.add_argument("--evaluate_only", help="skip training and only evaluate an existing model", action="store_true")
     parser.add_argument("--model_path", help="path to a saved model for evaluation", type=str, default=None)
