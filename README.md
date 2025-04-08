@@ -1,6 +1,5 @@
-# Data-Challenge-1-template-code
+# Data-Challenge-1-Group8-Split4
 This repository contains the template code for the TU/e course JBG040 Data Challenge 1.
-Please read this document carefully as it has been filled out with important information.
 
 ## Code structure
 The template code is structured into multiple files, based on their functionality. 
@@ -43,7 +42,6 @@ The loss functions and optimizers are all defined in `main.py`.
 
 *For information on how to install PyCharm and link Github to your PyCharm, we refer to the additional resources page on Canvas.
 
-
 ## Environment setup instructions
 We recommend to set up a virtual Python environment to install the package and its dependencies. To install the package, we recommend to execute `pip install -r requirements.txt` in the command line. This will install it in editable mode, meaning there is no need to reinstall after making changes. If you are using PyCharm, it should offer you the option to create a virtual environment from the requirements file on startup. Note that also in this case, it will still be necessary to run the pip command described above.
 
@@ -52,11 +50,11 @@ After each sprint, you are expected to submit your code. This will **not** be do
 A release is essentially a snapshot of your repository taken at a specific time. 
 Your future modifications are not going to affect this release.
 **Note that you are not allowed to update your old releases after the deadline.**
-For more information on releases, see the [GitHub releases](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases) page.
+For more information on releases, see the GitHub releases page: https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases
 
 1. Make sure that your code is running without issues and that **everything is pushed to the main branch**.
 2. Head over to your repository and click on *Releases* (located at the right-hand side).
-3. Click on *Create a new release*.*
+3. Click on *Create a new release*.
 4. Click on *Choose a tag*.
 5. Fill in the textbox with **SprintX** where X is the current sprint number and press *Create new tag: SprintX*.
 6. Make sure that *Target: main* or *Target: master* (depending on your main/master branch) is selected, so that the code release will be based on your main branch.
@@ -66,17 +64,66 @@ For more information on releases, see the [GitHub releases](https://docs.github.
 
 *After the first release, you should click *Draft a new release* instead of *Create a new release*.
 
-## Mypy
-The template is created with support for full typehints. This enables the use of a powerful tool called `mypy`. Code with typehinting can be statically checked using this tool. It is recommended to use this tool as it can increase confidence in the correctness of the code before testing it. Note that usage of this tool and typehints in general is entirely up to the students and not enforced in any way. To execute the tool, simply run `mypy`. For more information see https://mypy.readthedocs.io/en/latest/faq.html
-
 ## Argparse
 Argparse functionality is included in the main.py file. This means the file can be run from the command line while passing arguments to the main function. Right now, there are arguments included for the number of epochs (nb_epochs), batch size (batch_size), and whether to create balanced batches (balanced_batches). You are free to add or remove arguments as you see fit.
 
 To make use of this functionality, first open the command prompt and change to the directory containing the main.py file.
-For example, if you're main file is in C:\Data-Challenge-1-template-main\dc1\, 
+For example, if your main file is in C:\Data-Challenge-1-template-main\dc1\ 
 type `cd C:\Data-Challenge-1-template-main\dc1\` into the command prompt and press enter.
 
-Then, main.py can be run by, for example, typing `python main.py --nb_epochs 10 --batch_size 25`.
-This would run the script with 10 epochs, a batch size of 25, and balanced batches, which is also the current default.
+Then, main.py can be run by, for example, typing `python main.py --nb_epochs 12 --batch_size 15`.
+This would run the script with 12 epochs, a batch size of 15, and balanced batches, which is also the current default.
 If you would want to run the script with 20 epochs, a batch size of 5, and batches that are not balanced, 
 you would type `main.py --nb_epochs 20 --batch_size 5 --no-balanced_batches`.
+
+## File Descriptions
+
+Below is a summary of what each Python file in the template does:
+
+- `main.py`:  
+  The central script that handles argument parsing, dataset loading, model training, testing, and basic logging. You can configure preprocessing methods and augmentation through command-line flags. It reports epoch-level metrics like precision, recall, F1, and F2 scores directly in the console and saves loss plots in the `/artifacts/` directory. Trained model weights are stored in `/model_weights/`.
+
+- `train_test.py`:  
+  Contains the training and evaluation loops. Handles the forward pass, backpropagation, optimizer steps, and test set evaluation using `torch.no_grad()`. It automatically uses GPU if available.
+
+- `image_dataset.py`:  
+  Loads and preprocesses the thoracic X-ray image data from `.npy` files. Supports multiple preprocessing techniques like histogram equalization and CLAHE, and can apply data augmentation (random flips and rotations). All images are resized to 224×224 and replicated to 3 channels for ResNet compatibility.
+
+- `batch_sampler.py`:  
+  Implements the `BatchSampler` class that ensures balanced class distribution in each mini-batch. Especially useful when dealing with imbalanced datasets.
+
+- `net.py`:  
+  Contains the template model adapted for this classification task. Currently, this file is not used.
+
+## Preprocessing Options
+
+You can choose one of the following preprocessing modes through the `--preprocess` flag in `main.py`:
+
+- `none`: No preprocessing applied.
+- `hist_eq`: Applies global histogram equalization.
+- `clahe`: Applies adaptive histogram equalization (CLAHE).
+- `hist_eq_gaussian`: Applies a Gaussian blur followed by histogram equalization.
+
+## Augmentation Options
+
+Enable the `--augment` flag in `main.py` to apply random data augmentation:
+
+- Horizontal flips (30% probability)   - adjusted in the `image_dataset.py`
+- Random rotations (up to ±10 degrees)   - adjusted in the `image_dataset.py`
+
+Augmentation helps improve model robustness and generalization.
+
+## Output Artifacts
+
+After training, the following outputs are generated:
+
+- Model Weights – Stored in `dc1/model_weights/`
+- Training Loss Plot – Saved as a `.png` in `dc1/artifacts/`
+
+Note: Confusion matrices and metric plots are also printed as the run finishes, the confusion matrix is saved into the folder - output_confusion_matrix
+
+## Notes
+
+- Images are normalized and converted to 3-channel format to be compatible with ResNet-50.
+- The script automatically detects CUDA availability for faster training.
+- The main evaluation focus is on the F2-score, prioritizing recall in classification.
