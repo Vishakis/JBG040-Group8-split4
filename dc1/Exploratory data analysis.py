@@ -7,6 +7,30 @@ import torch
 print("CUDA available:", torch.cuda.is_available())
 print("CUDA version:", torch.version.cuda)
 print("Device name:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "No GPU found")
+
+import matplotlib.pyplot as plt
+
+# Data for plotting
+epochs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+train_loss = [1.7565, 1.6767, 1.6151, 1.5644, 1.5186, 1.4915, 1.4494, 1.4407, 1.4307, 1.4286, 1.4320, 1.4237]
+test_loss = [1.6930, 1.6284, 1.5813, 1.5607, 1.5225, 1.5099, 1.4833, 1.4866, 1.4798, 1.4837, 1.4760, 1.4759]
+
+# Create a line chart
+plt.figure(figsize=(10, 6))
+plt.plot(epochs, train_loss, label="Training Loss", marker='o')
+plt.plot(epochs, test_loss, label="Testing Loss", marker='o')
+
+# Adding titles and labels
+plt.title('Training and Testing Loss over 12 Epochs')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+
+# Display the plot
+plt.grid(True)
+plt.show()
+
+
 # ------------------------------------------------------------------------------
 # 1. Inspect .npy files in a specified folder
 # ------------------------------------------------------------------------------

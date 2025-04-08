@@ -6,6 +6,7 @@ from skimage.filters import gaussian
 from pathlib import Path
 from typing import Tuple
 
+
 class ImageDataset:
     def __init__(self, x: Path, y: Path, preprocess: str = "none", augment: bool = False) -> None:
         """
@@ -19,6 +20,7 @@ class ImageDataset:
         self.targets = self.load_numpy_arr_from_npy(y)  # e.g. shape (N,)
         self.preprocess = preprocess
         self.augment = augment
+
 
         # Define transforms: convert tensor to PIL, resize to 224x224, apply augmentation if desired, then convert back to tensor.
         if self.augment:
@@ -36,8 +38,10 @@ class ImageDataset:
                 T.ToTensor(),
             ])
 
+
     def __len__(self) -> int:
         return len(self.targets)
+
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, int]:
         image = self.imgs[idx] / 255.0  # Normalize
@@ -49,7 +53,9 @@ class ImageDataset:
             image = gaussian(image, sigma=1)
             image = exposure.equalize_hist(image)
 
+
         image = torch.from_numpy(image).float()
+
 
         # If image is 2D, add a channel dimension:
         if image.ndim == 2:
@@ -58,11 +64,15 @@ class ImageDataset:
         if image.shape[0] != 3:
             image = image.repeat(3, 1, 1)
 
+
         image = self.transform(image)
+
+
 
 
         label = int(self.targets[idx])
         return image, label
+
 
     @staticmethod
     def load_numpy_arr_from_npy(path: Path) -> np.ndarray:

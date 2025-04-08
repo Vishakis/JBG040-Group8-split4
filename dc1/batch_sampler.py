@@ -5,6 +5,8 @@ from .image_dataset import ImageDataset
 from typing import Generator, Tuple
 
 
+
+
 class BatchSampler:
     """
     Implements an iterable which given a torch dataset and a batch_size
@@ -13,9 +15,11 @@ class BatchSampler:
     Can produce balanced batches, where each batch will have an equal
     amount of samples from each class in the dataset. If your dataset is heavily
 
+
     imbalanced, this might mean throwing away a lot of samples from
     over-represented classes!
     """
+
 
     def __init__(self, batch_size: int, dataset: ImageDataset, balanced: bool = False) -> None:
         self.batch_size = batch_size
@@ -40,11 +44,14 @@ class BatchSampler:
             # Setting the indexes we will sample from later (all indexes):
             self.indexes = [i for i in range(len(dataset))]
 
+
     def __len__(self) -> int:
         return (len(self.indexes) // self.batch_size) + 1
 
+
     def shuffle(self) -> None:
         random.shuffle(self.indexes)
+
 
     def __iter__(self) -> Generator[Tuple[torch.Tensor, torch.Tensor], None, None]:
         remaining = False
