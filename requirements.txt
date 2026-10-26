@@ -1,5 +1,5 @@
 charset_normalizer==2.1.1
-certifi==2024.7.4
+certifi==2026.10.19
 colorama==0.4.6
 fonttools==4.55.8
 idna==3.7
