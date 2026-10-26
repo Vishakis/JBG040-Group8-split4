@@ -8,7 +8,7 @@ matplotlib
 mypy==0.991
 numpy
 packaging==24.2
-pillow==9.4.0
+pillow==13.0.0
 plotext
 pyparsing==3.0.9
 python-dateutil==2.8.2
